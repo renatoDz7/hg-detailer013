@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HG Detailer 013 - Agendamento</title>
+    <style>
+        :root { --gold: #f1c40f; --dark: #0a0a0a; --card: #1a1a1a; --text: #ffffff; --red: #ff4757; --green: #2ed573; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--dark); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 450px; margin: 0 auto; }
+        
+        /* Header */
+        h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; font-size: 24px; }
+        .sub-header { color: #666; font-size: 11px; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
+
+        /* Cards e Inputs */
+        .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        label { display: block; text-align: left; margin: 15px 0 5px 5px; color: var(--gold); font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--gold); }
+
+        /* Status de Vagas */
+        .info-vagas { font-size: 13px; font-weight: bold; padding: 12px; border-radius: 8px; margin: 15px 0; display: none; }
+        .vaga-livre { background: rgba(46, 213, 115, 0.1); color: var(--green); border: 1px solid var(--green); }
+        .vaga-ocupada { background: rgba(255, 71, 87, 0.1); color: var(--red); border: 1px solid var(--red); }
+        .preco-aviso { background: rgba(241, 196, 15, 0.1); color: var(--gold); border: 1px solid var(--gold); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: left; line-height: 1.4; }
+
+        /* Botões */
+        button { width: 100%; padding: 16px; border-radius: 10px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        .btn-confirmar { background: linear-gradient(45deg, #f1c40f, #d4af37); color: #000; margin-top: 10px; }
+        .btn-confirmar:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
+        
+        /* Design do Admin (cards de agendamento) */
+        .item-admin { background: #111; padding: 18px; border-radius: 12px; border-left: 5px solid var(--gold); margin-bottom: 15px; text-align: left; position: relative; border-top: 1px solid #222; }
+        .item-admin b { color: var(--gold); font-size: 16px; display: block; margin-bottom: 8px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .item-admin p { margin: 5px 0; font-size: 14px; color: #ccc; display: flex; align-items: center; gap: 8px; }
+        .btn-excluir { background: rgba(255, 71, 87, 0.15); color: var(--red); padding: 10px; border-radius: 6px; width: 100%; font-size: 12px; margin-top: 15px; border: 1px solid var(--red); }
+        .btn-excluir:hover { background: var(--red); color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>HG Detailer 013</h1>
+        <div class="sub-header">Estética Automotiva • Registro/SP</div>
+
+        <div class="card">
+            <label>👤 Nome do Cliente</label>
+            <input id="nome" placeholder="Seu nome" oninput="window.validarBotao()">
+
+            <label>📱 WhatsApp</label>
+            <input id="whats" type="tel" placeholder="13990000000" oninput="window.validarBotao()">
+
+            <label>🚗 Categoria do Veículo</label>
+            <select id="tipo" onchange="window.atualizarPreco()">
+                <option value="">Selecione o Porte</option>
+                <option value="Moto">🏍️ Moto</option>
+                <option value="Pequeno">🚗 Carro Pequeno (Hatch)</option>
+                <option value="Medio">🚘 Carro Médio (Sedan / SUV)</option>
+                <option value="Grande">🚚 Carro Grande (Caminhonete)</option>
+            </select>
+
+            <div id="preco-aviso" class="preco-aviso"></div>
+
+            <label>📅 Data do Serviço</label>
+            <input id="data" type="date" onchange="window.verificarDisponibilidadeTotal()">
+            
+            <div id="info-vagas" class="info-vagas"></div>
+
+            <div id="box-horario" style="display:none;">
+                <label>⏰ Horário Disponível</label>
+                <select id="hora" onchange="window.validarBotao()">
+                    <option value="">Escolha o horário</option>
+                    <option id="opt-08" value="08:00">08:00 (Manhã)</option>
+                    <option id="opt-13" value="13:00">13:00 (Tarde)</option>
+                </select>
+
+                <label>🚚 Logística (Leva e Traz?)</label>
+                <select id="logistica" onchange="window.toggleEndereco()">
+                    <option value="levar">📍 Eu vou levar o veículo</option>
+                    <option value="buscar">🏠 Quero que busquem (Leva e Traz)</option>
+                </select>
+
+                <div id="box-endereco" style="display:none;">
+                    <label>📍 Endereço para Retirada</label>
+                    <textarea id="endereco" placeholder="Rua, número e bairro..." oninput="window.validarBotao()"></textarea>
+                </div>
+            </div>
+
+            <button class="btn-confirmar" id="btnSalvar" onclick="window.agendar()" disabled>Finalizar Agendamento</button>
+        </div>
+
+        <button onclick="document.getElementById('admin-box').style.display='block'" style="background:none; color:#333; font-size: 11px; border:none; margin-top: 30px; cursor: pointer; text-decoration: underline;">ACESSO RESTRITO</button>
+
+        <div id="admin-box" style="display:none" class="card">
+            <h3 style="color:var(--gold); margin-top:0;">📋 Gerenciar Agenda</h3>
+            <input id="senha" type="password" placeholder="Senha Admin">
+            <button onclick="window.carregarAgenda()" style="background:#333; color:#fff; margin-bottom:10px;">Ver Agendamentos</button>
+            <button onclick="document.getElementById('admin-box').style.display='none'" style="background:none; color:var(--red); font-size:12px; border:none;">FECHAR PAINEL</button>
+            <div id="lista" style="margin-top:20px"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD69US1QzZhPSF680UvXNdduPIEzEYpgjQ",
+            authDomain: "hg-detailer.firebaseapp.com",
+            projectId: "hg-detailer",
+            storageBucket: "hg-detailer.firebasestorage.app",
+            messagingSenderId: "411232406537",
+            appId: "1:411232406537:web:7f47e0ca3b161cc3fbfcd8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.toggleEndereco = function() {
+            const log = document.getElementById("logistica").value;
+            document.getElementById("box-endereco").style.display = (log === "buscar") ? "block" : "none";
+            window.validarBotao();
+        };
+
+        window.atualizarPreco = function() {
+            const tipo = document.getElementById("tipo").value;
+            const aviso = document.getElementById("preco-aviso");
+            let preco = "";
+            if(tipo === "Moto") preco = "R$ 50,00";
+            if(tipo === "Pequeno") preco = "R$ 80,00";
+            if(tipo === "Medio") preco = "R$ 100,00";
+            if(tipo === "Grande") preco = "R$ 130,00";
+
+            if(preco) {
+                aviso.style.display = "block";
+                aviso.innerHTML = `💰 <b>Valor estimado: ${preco}</b><br><small>Lavagem completa com produtos premium.</small>`;
+            } else { aviso.style.display = "none"; }
+            window.verificarDisponibilidadeTotal();
+        };
+
+        window.verificarDisponibilidadeTotal = async function() {
+            const dataVal = document.getElementById("data").value;
+            const tipo = document.getElementById("tipo").value;
+            const info = document.getElementById("info-vagas");
+            const boxHorario = document.getElementById("box-horario");
+
+            if(!dataVal || !tipo) return;
+
+            info.style.display = "block";
+            info.innerHTML = "⌛ Verificando disponibilidade...";
+            info.className = "info-vagas";
+
+            try {
+                const snap = await getDocs(collection(db, "agendamentos"));
+                let ocupados = [];
+                let carrosNoDia = 0;
+                let motosNoDia = 0;
+
+                snap.forEach(res => {
+                    const d = res.data();
+                    if(d.data === dataVal) {
+                        ocupados.push(d.hora);
+                        if(d.tipo === "Moto") motosNoDia++; else carrosNoDia++;
+                    }
+                });
+
+                let limite = false;
+                if(tipo !== "Moto" && carrosNoDia >= 2) limite = "Limite de 2 Carros atingido para este dia!";
+                if(tipo === "Moto" && motosNoDia >= 1) limite = "Limite de 1 Moto atingido para este dia!";
+
+                if(ocupados.length >= 2 || limite) {
+                    info.innerHTML = limite || "❌ Agenda Lotada para esta data!";
+                    info.className = "info-vagas vaga-ocupada";
+                    boxHorario.style.display = "none";
+                } else {
+                    info.innerHTML = "✅ Horários disponíveis!";
+                    info.className = "info-vagas vaga-livre";
+                    boxHorario.style.display = "block";
+                    document.getElementById("opt-08").disabled = ocupados.includes("08:00");
+                    document.getElementById("opt-13").disabled = ocupados.includes("13:00");
+                    document.getElementById("opt-08").innerText = ocupados.includes("08:00") ? "08:00 (OCUPADO)" : "08:00 (Manhã)";
+                    document.getElementById("opt-13").innerText = ocupados.includes("13:00") ? "13:00 (OCUPADO)" : "13:00 (Tarde)";
+                    window.validarBotao();
+                }
+            } catch(e) { console.error(e); }
+        };
+
+        window.validarBotao = function() {
+            const n = document.getElementById("nome").value;
+            const w = document.getElementById("whats").value;
+            const h = document.getElementById("hora").value;
+            const d = document.getElementById("data").value;
+            const l = document.getElementById("logistica").value;
+            const e = document.getElementById("endereco").value;
+            
+            let ok = (n && w && h && d);
+            if(l === "buscar" && !e) ok = false;
+            document.getElementById("btnSalvar").disabled = !ok;
+        };
+
+        window.agendar = async function() {
+            const btn = document.getElementById("btnSalvar");
+            const logVal = document.getElementById("logistica").value;
+            const dados = {
+                nome: document.getElementById("nome").value,
+                whats: document.getElementById("whats").value,
+                tipo: document.getElementById("tipo").value,
+                data: document.getElementById("data").value,
+                hora: document.getElementById("hora").value,
+                logistica: logVal === "buscar" ? "BUSCAR NO ENDEREÇO" : "CLIENTE LEVA",
+                endereco: document.getElementById("endereco").value || "N/A",
+                ts: new Date().getTime()
+            };
+
+            btn.disabled = true;
+            btn.innerText = "AGUARDE...";
+
+            try {
+                await addDoc(collection(db, "agendamentos"), dados);
+                const meuZap = "5513997441962";
+                
+                let localMsg = (logVal === "buscar") 
+                    ? `%0A📍 *Endereço:* ${dados.endereco}` 
+                    : `%0A📍 *Localização do Lava Jato:* https://maps.google.com/?q=Registro,SP`;
+
+                const msg = `*NOVO AGENDAMENTO*%0A👤 *Cliente:* ${dados.nome}%0A📅 *Data:* ${dados.data}%0A⏰ *Hora:* ${dados.hora}%0A🚗 *Porte:* ${dados.tipo}%0A🚚 *Logística:* ${dados.logistica}${localMsg}`;
+                
+                alert("🚀 Agendado com sucesso!");
+                window.location.href = `https://wa.me/${meuZap}?text=${msg}`;
+            } catch(e) { alert("Erro ao salvar!"); btn.disabled = false; btn.innerText = "Finalizar Agendamento"; }
+        };
+
+        window.carregarAgenda = async function() {
+            if(document.getElementById("senha").value !== "123456") return alert("Senha incorreta!");
+            const listaDiv = document.getElementById("lista");
+            listaDiv.innerHTML = "Buscando dados...";
+            
+            try {
+                const snap = await getDocs(collection(db, "agendamentos"));
+                let ags = [];
+                snap.forEach(res => { 
+                    const data = res.data();
+                    if(data.data) ags.push({id: res.id, ...data}); 
+                });
+                
+                ags.sort((a,b) => (a.data || "").localeCompare(b.data || ""));
+                
+                let html = "";
+                ags.forEach(item => {
+                    const iconLog = item.logistica === "BUSCAR NO ENDEREÇO" ? "🏠" : "📍";
+                    html += `
+                    <div class="item-admin">
+                        <b>📅 ${item.data} | ⏰ ${item.hora}</b>
+                        <p>👤 <b>Cliente:</b> ${item.nome}</p>
+                        <p>🚗 <b>Veículo:</b> ${item.tipo}</p>
+                        <p>${iconLog} <b>Logística:</b> ${item.logistica || 'N/A'}</p>
+                        ${item.endereco && item.endereco !== "N/A" ? `<p>🗺️ <b>Endereço:</b> ${item.endereco}</p>` : ""}
+                        <p>📱 <b>Whats:</b> ${item.whats}</p>
+                        <button class="btn-excluir" onclick="window.removerAgendamento('${item.id}')">DELETAR AGENDAMENTO</button>
+                    </div>`;
+                });
+                listaDiv.innerHTML = html || "Nenhum agendamento encontrado.";
+            } catch (e) { alert("Erro ao carregar!"); }
+        };
+
+        window.removerAgendamento = async function(id) {
+            if(confirm("Tem certeza que deseja apagar este registro?")) {
+                await deleteDoc(doc(db, "agendamentos", id));
+                window.carregarAgenda();
+            }
+        };
+    </script>
+</body>
+</html>
