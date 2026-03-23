@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HG Detailer 013 - Agendamento</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --accent: #ffffff; --dark: #000000; --card: #111111; --text: #ffffff; --text-secondary: #aaaaaa; --red: #ff4757; --green: #2ed573; --blue: #25d366; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding: 15px; font-size: 14px; position: relative; }
+        .container { max-width: 450px; margin: 0 auto; text-align: center; }
+        
+        /* Título com Efeito de Brilho que vai e volta (Sheen) */
+        h1 { 
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-align: left;
+            display: inline-block;
+            background: linear-gradient(to right, #fff 20%, #555 40%, #555 60%, #fff 80%);
+            background-size: 200% auto;
+            color: #fff;
+            background-clip: text;
+            text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 4s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Destaque Branco para Registro/SP */
+        .sub-header { color: #888; font-size: 11px; letter-spacing: 1px; margin-bottom: 20px; text-transform: uppercase; text-align: left; line-height: 1.6; }
+        .destaque-local { color: #ffffff !important; font-weight: 700; border-bottom: 1px solid #333; }
+        
+        details.tutorial-box { margin-bottom: 20px; text-align: left; }
+        summary.btn-tutorial { display: block; background: rgba(255, 255, 255, 0.08); color: var(--accent); border: 1px solid #444; padding: 12px; border-radius: 10px; font-weight: bold; text-transform: uppercase; font-size: 11px; cursor: pointer; text-align: center; outline: none; list-style: none; }
+        summary.btn-tutorial::-webkit-details-marker { display: none; }
+        .tutorial-content { background: #080808; padding: 18px; border-radius: 0 0 10px 10px; border: 1px dashed #444; border-top: none; }
+        .passo { margin-bottom: 10px; font-size: 13px; color: var(--text-secondary); display: flex; gap: 10px; }
+        .passo span { color: var(--accent); font-weight: bold; }
+        
+        .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+        label { display: block; text-align: left; margin: 15px 0 5px 5px; color: var(--accent); font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        
+        input, select, textarea { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #555; background: #1a1a1a; color: #fff; box-sizing: border-box; font-size: 15px; outline: none; font-family: 'Montserrat', sans-serif; }
+        
+        .extra-option { display: flex; align-items: center; gap: 12px; background: #1a1a1a; padding: 14px; border-radius: 8px; border: 1px solid #444; margin-bottom: 10px; cursor: pointer; text-align: left; }
+        .extra-option input { width: 22px; height: 22px; margin-bottom: 0; accent-color: var(--green); }
+        .extra-info { font-size: 11px; color: #777; margin-top: -5px; margin-bottom: 15px; text-align: left; padding-left: 10px; }
+        
+        .info-vagas { font-size: 13px; font-weight: bold; padding: 12px; border-radius: 8px; margin: 15px 0; display: none; }
+        .vaga-livre { background: rgba(255, 255, 255, 0.1); color: var(--accent); border: 1px solid #666; }
+        .vaga-ocupada { background: rgba(255, 61, 61, 0.1); color: #ff4757; border: 1px dashed #ff4757; }
+        
+        .box-total { background: #1a1a1a; border: 1px dashed #666; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: left; }
+        .total-valor { font-size: 22px; color: var(--accent); font-weight: bold; }
+        
+        .btn-geo { background: #222; color: #fff; padding: 12px; border-radius: 8px; font-size: 12px; margin-bottom: 10px; border: 1px solid #444; width: 100%; cursor: pointer; }
+        .endereco-loja { background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #444; margin-bottom: 10px; text-align: left; }
+
+        button.btn-confirmar { width: 100%; padding: 16px; border-radius: 10px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; font-size: 15px; font-family: 'Montserrat', sans-serif; background: var(--accent); color: var(--dark); margin-top: 10px; }
+        button.btn-confirmar:disabled { opacity: 0.1; cursor: not-allowed; }
+        
+        .item-admin { background: #080808; padding: 18px; border-radius: 12px; border-left: 4px solid var(--accent); margin-bottom: 15px; text-align: left; border-top: 1px solid #111; }
+        .admin-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-excluir { background: #1a1a1a; color: #666; padding: 10px; border-radius: 8px; font-size: 10px; flex: 1; border: 1px solid #333; cursor:pointer;}
+        .btn-chat { background: #1a1a1a; color: var(--blue); padding: 10px; border-radius: 8px; font-size: 10px; flex: 1; border: 1px solid var(--blue); font-weight: bold; cursor:pointer; text-align:center; text-decoration:none;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>HG Detailer 013</h1>
+        <div class="sub-header">Estética Automotiva em <span class="destaque-local">Registro/SP</span><br>📍 R. Shigue Sumi, 40 - Vila Cabral</div>
+
+        <details class="tutorial-box">
+            <summary class="btn-tutorial">💡 Ver como funciona</summary>
+            <div class="tutorial-content">
+                <div class="passo"><span>1.</span> <div>Preencha seus dados e veículo.</div></div>
+                <div class="passo"><span>2.</span> <div>Adicione serviços extras.</div></div>
+                <div class="passo"><span>3.</span> <div>Escolha data e logística.</div></div>
+                <div class="passo"><span>4.</span> <div>Finalize no WhatsApp.</div></div>
+            </div>
+        </details>
+
+        <div class="card">
+            <label>👤 Nome do Cliente</label>
+            <input id="nome" placeholder="Seu nome" oninput="window.validarBotao()">
+            <label>📱 WhatsApp</label>
+            <input id="whats" type="tel" placeholder="seu número" oninput="window.validarBotao()">
+            <label>🚗 Categoria do Veículo</label>
+            <select id="tipo" onchange="window.calcularTudo()">
+                <option value="">Selecione o Porte</option>
+                <option value="Moto" data-preco="50">🏍️ Moto - R$ 50,00</option>
+                <option value="Pequeno" data-preco="80">🚗 Carro Pequeno - R$ 80,00</option>
+                <option value="Medio" data-preco="100">🚘 Carro Médio - R$ 100,00</option>
+                <option value="Grande" data-preco="130">🚚 Carro Grande - R$ 130,00</option>
+            </select>
+
+            <div id="box-adicionais" style="display:none;">
+                <label>✨ Serviços Adicionais</label>
+                <div class="extra-option" onclick="if(event.target.tagName !== 'INPUT') document.getElementById('cera').click()">
+                    <input type="checkbox" id="cera" onchange="window.calcularTudo()">
+                    <span>Enceramento Profissional (+R$ 20,00)</span>
+                </div>
+                <div class="extra-option" id="box-higienizacao" onclick="if(event.target.tagName !== 'INPUT') document.getElementById('higienizacao').click()">
+                    <input type="checkbox" id="higienizacao" onchange="window.calcularTudo()">
+                    <span>Higienização (Retirada de Carpete)</span>
+                </div>
+                <div class="extra-info" id="info-higienizacao">*Valor a combinar no local.</div>
+            </div>
+
+            <div class="box-total" id="box-total" style="display:none;">
+                <div class="total-valor" id="resumo-preco">R$ 0,00</div>
+            </div>
+
+            <label>📅 Data do Serviço</label>
+            <input id="data" type="date" onchange="window.verificarDisponibilidadeTotal()" oninput="window.verificarDisponibilidadeTotal()">
+            <div id="info-vagas" class="info-vagas"></div>
+
+            <div id="box-horario" style="display:none;">
+                <label>⏰ Horário</label>
+                <select id="hora" onchange="window.validarBotao()">
+                    <option value="">Escolha o horário</option>
+                    <option id="opt-08" value="08:00">08:00 (Manhã)</option>
+                    <option id="opt-13" value="13:00">13:00 (Tarde)</option>
+                </select>
+
+                <label>🚚 Logística</label>
+                <select id="logistica" onchange="window.toggleEndereco()">
+                    <option value="levar">📍 Eu vou levar o veículo</option>
+                    <option value="buscar">🏠 Quero que busquem (Leva e Traz)</option>
+                </select>
+
+                <div id="box-endereco-loja" class="endereco-loja">
+                    <span style="color:white; font-weight:bold; font-size:11px;">NOSSO ENDEREÇO:</span><br>
+                    <span style="color:#ccc">R. Shigue Sumi, 40 - Vila Cabral</span>
+                </div>
+
+                <div id="box-endereco" style="display:none;">
+                    <label>📍 Seu Endereço</label>
+                    <button type="button" class="btn-geo" onclick="window.pegarLocalizacao()">📍 Pegar GPS</button>
+                    <textarea id="endereco" rows="2" placeholder="Rua, número e bairro..." oninput="window.validarBotao()"></textarea>
+                </div>
+            </div>
+
+            <button class="btn-confirmar" id="btnSalvar" onclick="window.agendar()" disabled>Reservar Agora</button>
+        </div>
+
+        <button onclick="document.getElementById('admin-box').style.display='block'" style="background:none; color:#222; border:none; margin-top: 30px; cursor: pointer; text-decoration: underline; font-family: 'Montserrat', sans-serif;">ADMIN</button>
+        <div id="admin-box" style="display:none" class="card">
+            <h3 style="color:white">Agenda Organizadora</h3>
+            <input id="senha" type="password" placeholder="Senha">
+            <button onclick="window.carregarAgenda()" style="background:#222; color:#fff; width:100%; padding:12px; border-radius:8px; border:1px solid #444;">VER AGENDA</button>
+            <button onclick="document.getElementById('admin-box').style.display='none'" style="background:none; color:grey; border:none; margin-top:10px; cursor:pointer;">FECHAR</button>
+            <div id="lista" style="margin-top:20px"></div>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyD69US1QzZhPSF680UvXNdduPIEzEYpgjQ", authDomain: "hg-detailer.firebaseapp.com", projectId: "hg-detailer", storageBucket: "hg-detailer.firebasestorage.app", messagingSenderId: "411232406537", appId: "1:411232406537:web:7f47e0ca3b161cc3fbfcd8" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        window.pegarLocalizacao = function() {
+            const btn = document.querySelector('.btn-geo'), end = document.getElementById('endereco');
+            btn.innerHTML = "⏳ Buscando...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    end.value = `📍 GPS: http://googleusercontent.com/maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    btn.innerHTML = "✅ Localizado!";
+                    window.validarBotao();
+                }, function() { btn.innerHTML = "❌ Erro GPS"; });
+            }
+        };
+
+        window.calcularTudo = function() {
+            const sel = document.getElementById("tipo"), tipo = sel.value, boxA = document.getElementById("box-adicionais"), boxH = document.getElementById("box-higienizacao");
+            const preco = parseInt(sel.options[sel.selectedIndex].getAttribute("data-preco") || 0);
+            if(tipo === "") { boxA.style.display = "none"; } else {
+                boxA.style.display = "block";
+                boxH.style.display = (tipo === "Moto") ? "none" : "flex";
+            }
+            let total = preco + (document.getElementById("cera").checked ? 20 : 0);
+            if(preco > 0) {
+                document.getElementById("box-total").style.display = "block";
+                document.getElementById("resumo-preco").innerText = `R$ ${total},00`;
+            } else { document.getElementById("box-total").style.display = "none"; }
+            window.verificarDisponibilidadeTotal();
+        };
+
+        window.toggleEndereco = function() {
+            const log = document.getElementById("logistica").value;
+            document.getElementById("box-endereco").style.display = (log === "buscar") ? "block" : "none";
+            document.getElementById("box-endereco-loja").style.display = (log === "levar") ? "block" : "none";
+            window.validarBotao();
+        };
+
+        window.verificarDisponibilidadeTotal = async function() {
+            const data = document.getElementById("data").value, tipo = document.getElementById("tipo").value, info = document.getElementById("info-vagas"), boxH = document.getElementById("box-horario"), selectHora = document.getElementById("hora");
+            if(!data || !tipo) return;
+            info.style.display = "block"; info.innerHTML = "⌛ Verificando...";
+            try {
+                const snap = await db.collection("agendamentos").get();
+                let cD = 0, mD = 0, c08 = 0, m08 = 0, c13 = 0, m13 = 0;
+                snap.forEach(res => {
+                    const d = res.data();
+                    if(d.data === data) {
+                        if(d.tipo === "Moto") { mD++; if(d.hora === "08:00") m08++; else m13++; }
+                        else { cD++; if(d.hora === "08:00") c08++; else c13++; }
+                    }
+                });
+                let erro = (tipo !== "Moto" && cD >= 2) ? "Máximo 2 carros no dia!" : (cD + mD >= 3) ? "Dia lotado!" : false;
+                if(erro) { info.innerHTML = `❌ ${erro}`; info.className = "info-vagas vaga-ocupada"; boxH.style.display = "none"; }
+                else {
+                    info.innerHTML = "✅ Vagas disponíveis!"; info.className = "info-vagas vaga-livre"; boxH.style.display = "block";
+                    const o08 = document.getElementById("opt-08"), o13 = document.getElementById("opt-13");
+                    const b08 = (c08 + m08 >= 2 || (tipo !== "Moto" && c08 >= 1)), b13 = (c13 + m13 >= 2 || (tipo !== "Moto" && c13 >= 1));
+                    o08.disabled = b08; o08.innerText = b08 ? "08:00 (Ocupado)" : "08:00 (Manhã)";
+                    o13.disabled = b13; o13.innerText = b13 ? "13:00 (Ocupado)" : "13:00 (Tarde)";
+                    if ((selectHora.value === "08:00" && b08) || (selectHora.value === "13:00" && b13)) selectHora.value = "";
+                    window.validarBotao();
+                }
+            } catch(e) { info.innerHTML = "⚠️ Teste Local"; boxH.style.display = "block"; }
+        };
+
+        window.validarBotao = function() {
+            const n = document.getElementById("nome").value, w = document.getElementById("whats").value, h = document.getElementById("hora").value, d = document.getElementById("data").value, l = document.getElementById("logistica").value, e = document.getElementById("endereco").value;
+            let ok = (n && w && h && d); if(l === "buscar" && !e) ok = false;
+            document.getElementById("btnSalvar").disabled = !ok;
+        };
+
+        window.agendar = async function() {
+            const btn = document.getElementById("btnSalvar");
+            const dados = { nome: document.getElementById("nome").value, whats: document.getElementById("whats").value, tipo: document.getElementById("tipo").value, cera: document.getElementById("cera").checked ? "SIM" : "NÃO", higienizacao: document.getElementById("higienizacao").checked ? "SIM" : "NÃO", total: document.getElementById("resumo-preco").innerText, data: document.getElementById("data").value, hora: document.getElementById("hora").value, logistica: document.getElementById("logistica").value.toUpperCase(), endereco: document.getElementById("endereco").value || "N/A", ts: new Date().getTime() };
+            btn.disabled = true;
+            try {
+                await db.collection("agendamentos").add(dados);
+                let loc = dados.logistica === "BUSCAR" ? `%0A📍 *Endereço:* ${encodeURIComponent(dados.endereco)}` : `%0A📍 *Local:* Cliente leva na Loja`;
+                const msg = `*HG DETAILER 013*%0A👤 *Cliente:* ${dados.nome}%0A📅 *Data:* ${dados.data}%0A⏰ *Hora:* ${dados.hora}%0A🚗 *Porte:* ${dados.tipo}%0A✨ *Cera:* ${dados.cera}%0A🧽 *Hig:* ${dados.higienizacao}%0A💰 *Total:* ${dados.total}${loc}`;
+                window.location.href = `https://wa.me/5513997441962?text=${msg}`;
+            } catch(e) { alert("Erro local!"); btn.disabled = false; }
+        };
+
+        window.carregarAgenda = async function() {
+            if(document.getElementById("senha").value !== "123456") return alert("Senha!");
+            const lista = document.getElementById("lista"); lista.innerHTML = "Carregando...";
+            const snap = await db.collection("agendamentos").get();
+            let ags = []; snap.forEach(res => { if(res.data().data) ags.push({id: res.id, ...res.data()}); });
+            ags.sort((a,b) => (a.data + a.hora).localeCompare(b.data + b.hora));
+            let html = "", dt = "";
+            ags.forEach(i => {
+                if(i.data !== dt) { let p = i.data.split("-"); html += `<h4 style="color:var(--green); border-bottom:1px solid #333; padding:10px 0; text-align:left;">📅 ${p[2]}/${p[1]}/${p[0]}</h4>`; dt = i.data; }
+                let label = (i.tipo === "Moto") ? "🏍️ MOTO" : `🚗 CARRO ${i.tipo.toUpperCase()}`;
+                let waLink = `https://wa.me/55${i.whats.replace(/\D/g,'')}`;
+                html += `<div class="item-admin"><b>⏰ ${i.hora}</b> - ${i.nome}<br><span style="color:white; font-weight:700; font-size:11px;">${label}</span><br><small>🚚 ${i.logistica}: ${i.endereco}</small><div class="admin-actions"><a class="btn-chat" href="${waLink}" target="_blank">ZAP</a><button class="btn-excluir" onclick="window.remover('${i.id}')">APAGAR</button></div></div>`;
+            });
+            lista.innerHTML = html || "Vazio";
+        };
+
+        window.remover = async function(id) { if(confirm("Apagar?")) { await db.collection("agendamentos").doc(id).delete(); window.carregarAgenda(); } };
+    </script>
+</body>
+</html>
